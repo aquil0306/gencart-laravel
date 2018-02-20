@@ -43,7 +43,7 @@ class Store extends Model
     }
     public function orders()
     {
-        return $this->belongsToMany('App\Order', 'order_product', 'store_id');
+        return $this->belongsToMany('App\Order', 'order_store', 'store_id')->withPivot('amount', 'fulfilment_status');;
     }
 
     // public function hasOrder($store_id){

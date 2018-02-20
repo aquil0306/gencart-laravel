@@ -64,6 +64,10 @@ Route::group(['middleware' => 'auth:api'], function(){
 
     Route::GET('/product_details/{product}', 'Api\ProductController@details');
 
+    Route::POST('/order', 'Api\OrderController@store');
+
+    Route::DELETE('/order_delete/{order}', 'Api\OrderController@destroy');
+
 });
 
 

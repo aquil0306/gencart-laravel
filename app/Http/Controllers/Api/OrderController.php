@@ -1,33 +1,54 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+use App\Order;
+use App\OrderStore;
+use App\OrderProduct;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use DB;
 
 class OrderController extends Controller
 {
-     public function store(Request $request)
+    public $successStatus = 200;
+    public function store(Request $request)
     {
+        DB::beginTransaction();
 
-        $store = Store::create($request->all());
+        $order = Order::create($request->all());
+        
+        if($order){ 
+            foreach($request['detail'] as $key=>$value){
+              
+                $store_order['store_id'] =  $value['store_id'];
+                $store_order['order_id'] =  $order->id;
+                $store_order['amount']   =  $value['store_id'];
+                $orderstore = OrderStore::create($store_order); 
+                
+                foreach($value['products'] as $pvalue){
+                 
+                    $store_product['store_id']      =  $value['store_id'];
+                    $store_product['order_id']      =  $order->id;
+                    $store_product['quantity']      =  $pvalue['quantity'];
+                    $store_product['product_id']    =  $pvalue['product_id'];
+                    $storeproduct = OrderProduct::create($store_product); 
+                }
 
-        if ($store) {
-
-            if ($request->hasFile('logo') && $request->file('logo')->isValid()) {
-                $path = $request->logo->store('public/logos');
-                $store->logo = str_replace('public/', '', $path);
-                $store->save();
-            }
-
-            if ($request->hasFile('banner') && $request->file('banner')->isValid()) {
-                $path = $request->banner->store('public/banners');
-                $store->banner = str_replace('public/', '', $path);
-                $store->save();
             }
         }
-
-
-        return $store;
+        return response()->json(['success' => ''], $this->successStatus);
+        DB::commit();
+        return response()->json(['failure' => $store], 404);
     }
+
+    public function update(){
+
+    }
+
+    public function destroy(Order $order){
+        
+        print_r($order);
+
+    }
+
 }
